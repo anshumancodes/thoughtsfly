@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -60,4 +61,38 @@ const userSchema = new mongoose.Schema(
 // Add 2dsphere index to enable geospatial queries
 userSchema.index({ location: '2dsphere' });
 
-export default mongoose.model('User', userSchema);
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+userSchema.methods.comparePassword = async function (password:string) {
+  // Bcrypt automatically uses the salt embedded in the stored hash for the compare () method , added this comment to 
+  // make sure you dont get brainfuck to think how it compares the password without the access to the salt :)
+  return bcrypt.compare(password, this.password);
+}
+
+
+userSchema.methods.generateAccessToken = function () {
+return jwt.sign(
+  {
+    _id:this._id,
+    email:this.email,
+    username:this.username,
+    name:this.name,
+  },
+  process.env.JWT_SECRET_KEY,
+  {
+    expiresIn: '2161h',
+  }
+);
+}
+
+
+const User = mongoose.model('User', userSchema);
+
+export default User;
