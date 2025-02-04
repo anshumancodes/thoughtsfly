@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react";
-import TabNavigation from "../components/UserProfile/TabNavigation";
-import Post from "../components/Timeline/Post";
+import TabNavigation from "./TabNavigation";
+import Post from "../Timeline/Post";
 import { Link } from "react-router-dom";
 const UserProfile = () => {
   return (
