@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
-
+import {CreatePostModalState} from "../../context/Atoms";
+import { useSetRecoilState} from "recoil";
 const SideNav = () => {
+  const setCreatePostModalState = useSetRecoilState(CreatePostModalState);
   return (
     <div className="top-0 flex flex-col items-start h-screen p-4 space-y-8 border-r border-gray-500 w-64">
       {/* Logo Section */}
@@ -15,12 +17,13 @@ const SideNav = () => {
             Home
           </p>
         </Link>
-        <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 p-2 rounded-[32px] cursor-pointer text-center">
+        <Link to={"/explore"}><p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 p-2 rounded-[32px] cursor-pointer text-center">
           Explore
-        </p>
+        </p></Link>
+        <Link to={"/trending"}>
         <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 p-2 rounded-[32px] cursor-pointer text-center">
           #Hashtags
-        </p>
+        </p></Link>
         <Link to="/user">
           <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 p-2 rounded-[32px] cursor-pointer text-center">
             Profile
@@ -30,7 +33,7 @@ const SideNav = () => {
 
       {/* Post Button */}
       <div className="mt-auto w-full">
-        <button className="w-full bg-[#e14f20] text-white font-bold py-2 px-4 rounded-full hover:bg-blue-600">
+        <button className="w-full bg-[#e14f20] text-white font-bold py-2 px-4 rounded-full hover:bg-blue-600" onClick={()=>setCreatePostModalState(true)}>
           Post
         </button>
       </div>
