@@ -1,7 +1,26 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema} from 'mongoose';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-const userSchema = new mongoose.Schema(
+import * as bcrypt from 'bcrypt';
+
+interface UserInterface extends mongoose.Document {
+  username: string;
+  name: string;
+  email: string;
+  password: string;
+  avatar: string;
+  profileBanner: string;
+  profileBio: string;
+  location: {
+    type: string;
+    coordinates: number[];
+  };
+  accessToken: string;
+
+  comparePassword(password: string): Promise<boolean>;
+  generateAccessToken(): string;
+}
+
+const userSchema: Schema<UserInterface> = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -28,11 +47,11 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default:
-        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+        'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
     },
     profileBanner: {
       type: String,
-      default: null, 
+      default: null,
     },
     profileBio: {
       type: String,
@@ -40,13 +59,13 @@ const userSchema = new mongoose.Schema(
     },
     location: {
       type: {
-        type: String, 
+        type: String,
         enum: ['Point'],
-        required: false, // Not mandatory for all users
+        required: false,
       },
       coordinates: {
-        type: [Number], 
-        required: false, 
+        type: [Number],
+        required: false,
       },
     },
     accessToken: {
@@ -61,38 +80,44 @@ const userSchema = new mongoose.Schema(
 // Add 2dsphere index to enable geospatial queries
 userSchema.index({ location: '2dsphere' });
 
-userSchema.pre('save', async function (next) {
+// Pre-save hook for password hashing
+userSchema.pre<UserInterface>('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
   }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
-userSchema.methods.comparePassword = async function (password:string) {
+// Method to compare passwords
+userSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
   // Bcrypt automatically uses the salt embedded in the stored hash for the compare () method , added this comment to 
   // make sure you dont get brainfuck to think how it compares the password without the access to the salt :)
   return bcrypt.compare(password, this.password);
-}
+};
 
+// Method to generate JWT access token
+userSchema.methods.generateAccessToken = function (): string {
+  return jwt.sign(
+    {
+      _id: this._id,
+      email: this.email,
+      username: this.username,
+      name: this.name,
+    },
+    process.env.JWT_SECRET_KEY as string,
+    {
+      expiresIn: '2161h',
+    }
+  );
+};
 
-userSchema.methods.generateAccessToken = function () {
-return jwt.sign(
-  {
-    _id:this._id,
-    email:this.email,
-    username:this.username,
-    name:this.name,
-  },
-  process.env.JWT_SECRET_KEY,
-  {
-    expiresIn: '2161h',
-  }
-);
-}
-
-
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model<UserInterface>('User', userSchema);
 
 export default User;
+
