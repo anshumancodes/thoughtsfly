@@ -2,6 +2,7 @@ import { ApiError } from "../services/ApiError.js";
 import { Post } from "../models/post.model.js";
 import {z} from "zod";
 import ApiResponse from "../services/ApiResponse.js";
+import User from "../models/user.model.js";
 
 
 const createPost=async(req,res)=>{
@@ -39,9 +40,57 @@ const deletePost=async(req,res)=>{
     if(!deletedPost){
         throw new ApiError(500,"Unable to delete post");
     }
-    return res.status(200).json(new ApiResponse(200,{message:"Post deleted successfully!"}));
+    return res.status(200).json(new ApiResponse(200,{deletedPost},"post deleted sucessfully"));
+}
+
+const fetchPostbyid=async(req,res)=>{
+ 
+  try {
+    const {postid}=req.params;
+  
+    const post = await Post.findById(postid)
+    if(!post) {
+      return res.status(404).json(new ApiError(404,"post not found"))
+    }
+    
+    return res.status(200).json(new ApiResponse(200,{post:post},"post fetched"));
+    
+    
+} catch (error) {
+      return res.status(500).json(new ApiError(500,"Internal Server Error",error));
+
+    
+    
+  }
+
+
+
+}
+
+const fetchUserallposts=async(req,res)=>{
+
+   try {
+     const token=req.cookies.accessToken
+     const user=await User.findOne({accessToken:token});
+     
+     const posts= await Post.find({owner:user._id});
+ 
+     if(!posts.length){
+         return res.status(400).json(new ApiError(400,"NO exisiting post found"))
+ 
+     }
+     return res.status(200).json(new ApiResponse(200,{
+         postsFound:posts.length + " posts found",
+         posts
+     },"All of User's posts fetched successfully"))
+   } catch (error) {
+
+    return res.status(500).json(new ApiError(500,"Internal Server Error",error))
+    
+   }
+
+
 }
 
 
-
-export {createPost,deletePost};
+export {createPost,deletePost,fetchPostbyid,fetchUserallposts};
