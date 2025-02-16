@@ -13,15 +13,24 @@ const PostSchema= new mongoose.Schema({
         ref:"User",
         required:true
     },
-    likes:{
-        type:Number,
-        default:0
-    },
-    comments:{
-        type:Number,
-        default:0
-    },
-    
+    likes: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User", 
+        },
+      ],
+      comments: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Comment", 
+        },
+      ],
+      retweets: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Retweet",
+        },
+      ],
     
 },{
     timestamps:true
