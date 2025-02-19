@@ -5,6 +5,7 @@ import { z } from "zod";
 import uploadTocloud from "../services/cloudinary.js";
 import AsyncHandler from "../services/AsyncHandler.js";
 import { Post } from "../models/post.model.js";
+import mongoose from "mongoose";
 
 const userSignup=async(req,res)=>{
     const {username,name,email,password,profileBio,location}=req.body;
@@ -114,11 +115,10 @@ const fetchUserProfile=async(req,res)=>{
         return res.status(400).json(new ApiError(400,"User not found"));
     }
 
-    const userPosts=await Post.find({owner:user._id}).select("-owner -comments -likes");
+    const userPosts=await Post.find({owner:user._id})
 
     return res.status(200).json(new ApiResponse(200,{
         userProfile:user,
-        userPosts:userPosts,
         TotalPosts:userPosts.length
     },"User profile fetched successfully"));
 
@@ -128,8 +128,12 @@ const fetchUserProfile=async(req,res)=>{
 const EditUserProfile=async(req,res)=>{
 
     const {FullName,Bio,location,webLink}=req.body;
-    const token=req.cookies.accessToken;
-    const user=await User.findOne({accessToken:token});
+    const userId = req.auth.payload.sub;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json(new ApiError(400, "Invalid user ID"));
+    }
+    const user=await User.findById(userId);
     if(!user){
         return res.status(400).json(new ApiError(400,"User not found"));
     }
@@ -151,5 +155,30 @@ const EditUserProfile=async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,updatedUser,"User profile updated successfully"));
 }
 
+const changeUsername=async(req,res)=>{
+    const {newUsername}=req.body;
+    const userId = req.auth.payload.sub;
 
-export{userSignup,userLogin,fetchUserProfile,EditUserProfile}
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json(new ApiError(400, "Invalid user ID"));
+    }
+    const user=await User.findById(userId);
+
+    if(!user){
+        return res.status(400).json(new ApiError(400,"User not found"));
+    }
+
+    const userSchema=z.object({
+        username:z.string().min(3).max(16).regex(/^[a-zA-Z0-9]+$/),
+    });
+
+    const UpdateUsername=userSchema.parse({newUsername});
+    const updatedUser=await User.findByIdAndUpdate(user._id,UpdateUsername,{new:true}).select("-password -email -accessToken");
+    if(!updatedUser){
+        return res.status(500).json(new ApiError(500,"Unable to update username"));
+    }
+    return res.status(200).json(new ApiResponse(200,updatedUser,"Username updated successfully"));
+}
+
+
+export{userSignup,userLogin,fetchUserProfile,EditUserProfile,changeUsername}
