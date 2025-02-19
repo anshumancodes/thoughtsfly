@@ -1,7 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+@layer utilities {
+  .hide-scrollbar {
+    /* Hide the scrollbar */
+    &::-webkit-scrollbar {
+      width: 0px;
+      height: 0px;
+      background: transparent;
+    }
+    -ms-overflow-style: none;  /* IE 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
 html{
   font-family: dm-sans, sans-serif;
+  
+}
+/* For Webkit browsers (Chrome, Safari, etc.) */
+
+/* For Firefox */
+/* scrollbar-width: none;  hides the scrollbar */
+.greyish-filter-bg{
+  background:  rgba(255, 255, 255, 0.1);
 }
