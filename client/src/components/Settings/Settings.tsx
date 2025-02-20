@@ -1,28 +1,36 @@
 import { ChevronRight, HeartCrack, KeyRoundIcon, Moon, Sun, ToggleLeftIcon, User } from "lucide-react";
-
-
+import { Link } from "react-router-dom";
+import { Outlet } from 'react-router-dom'
+import { useState } from "react";
 const Settings = () => {
-    
+    const [anySettingOpend,SetAnySettingOpened]=useState(false)
   return (
     <div className="w-[590px] flex flex-col">
+    
+      
       <div className=" px-2">
+
         <h1 className="text-2xl font-bold">Your Account</h1>
         <p className="text-sm text-gray-500 mt-3">
           See information about your account, or learn about your account
           deletation options
         </p>
       </div>
-      <div className="flex-col flex space-y-6 px-2 mt-10">
+     
+      {anySettingOpend ? ( <div className="px-2 mt-2">
+      <Outlet/>
+      </div>) :(<div className="flex-col flex space-y-6 px-2 mt-10">
         <div className="flex  gap-4 items-center">
           <div>
             <User />
           </div>
+          <Link to={"account"} onClick={()=>{SetAnySettingOpened(true)}}>
           <div>
             <p className="font-bold text-xl">Account information</p>
             <p className="flex gap-3 text-gray-500 mt-1">see your account information like your email , username etc. <ChevronRight/></p>
-          </div>
+          </div></Link>
         </div>
-        <div className="flex  gap-4 items-center">
+       <Link to="change-password" onClick={()=>{SetAnySettingOpened(true)}}> <div className="flex  gap-4 items-center">
           <div>
             <KeyRoundIcon/>
           </div>
@@ -30,9 +38,10 @@ const Settings = () => {
             <p className="font-bold text-xl">Change Password</p>
             <p className="flex gap-3 text-gray-500 mt-1">see your account information like your email , username etc. <ChevronRight/></p>
           </div>
-        </div>
+        </div></Link>
 
-        <div className="flex  gap-4 items-center">
+     <Link to={"delete-account"} onClick={()=>{SetAnySettingOpened(true)}}>
+     <div className="flex  gap-4 items-center">
           <div>
             <HeartCrack/>
           </div>
@@ -41,6 +50,8 @@ const Settings = () => {
             <p className="flex gap-3 text-gray-500 mt-1">see your account information like your email , username etc. <ChevronRight/></p>
           </div>
         </div>
+     
+     </Link>
 
         <div className="flex  gap-4 items-center">
           <div>
@@ -52,29 +63,23 @@ const Settings = () => {
            <div className="mt-2"><ThemeToggle/></div>
           </div>
         </div>
-
-      </div>
+       
+      </div>)}
+     
     </div>
   );
 };
 
-import { useEffect } from "react";
+
 import { useRecoilState } from "recoil";
 import { LightOrDark } from "../../context/Atoms";
+
 
 
 const ThemeToggle = () => {
   const [theme, setTheme] = useRecoilState(LightOrDark);
 
-  // Sync theme changes to localStorage and document's classList
-  useEffect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+  
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
