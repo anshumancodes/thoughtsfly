@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import {CreatePostModalState} from "../../context/Atoms";
 import { useSetRecoilState} from "recoil";
+
+import { Settings ,User ,Search ,Home ,Hash} from "lucide-react";
 const SideNav = () => {
   const setCreatePostModalState = useSetRecoilState(CreatePostModalState);
+ 
   return (
     <div className="top-0 flex flex-col items-start h-screen p-4 space-y-8 border-r border-gray-500 w-64">
       {/* Logo Section */}
@@ -13,20 +16,25 @@ const SideNav = () => {
       {/* Navigation Links */}
       <div className="flex flex-col space-y-6 w-full">
         <Link to="/home">
-          <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 p-2 rounded-[32px] cursor-pointer text-center">
-            Home
+          <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 py-2 px-6 rounded-[32px] cursor-pointer text-center items-center justify-between flex gap-3  ">
+            <Home/> Home
           </p>
         </Link>
-        <Link to={"/explore"}><p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 p-2 rounded-[32px] cursor-pointer text-center">
-          Explore
+        <Link to={"/explore"}><p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 py-2 px-6 rounded-[32px] cursor-pointer text-center items-center justify-between flex gap-3  ">
+         <Search/> Explore
         </p></Link>
         <Link to={"/trending"}>
-        <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 p-2 rounded-[32px] cursor-pointer text-center">
-          #Hashtags
+        <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 py-2 px-6 rounded-[32px] cursor-pointer text-center items-center justify-between flex gap-3  ">
+         <Hash/> Hashtags
         </p></Link>
         <Link to="/user">
-          <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 p-2 rounded-[32px] cursor-pointer text-center">
-            Profile
+          <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 py-2 px-6 rounded-[32px] cursor-pointer text-center items-center justify-between flex gap-3  ">
+           <User/> Profile
+          </p>
+        </Link>
+        <Link to="/settings" >
+          <p className="text-xl font-semibold hover:bg-white hover:bg-opacity-10 py-2 px-6 rounded-[32px] cursor-pointer text-center items-center justify-between flex gap-3  ">
+          <Settings/>Settings
           </p>
         </Link>
       </div>
