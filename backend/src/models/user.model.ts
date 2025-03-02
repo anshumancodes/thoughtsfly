@@ -1,8 +1,9 @@
-import mongoose, { Schema} from 'mongoose';
-import jwt from 'jsonwebtoken';
-import * as bcrypt from 'bcrypt';
+import mongoose, { Schema } from "mongoose";
+import jwt from "jsonwebtoken";
+import * as bcrypt from "bcrypt";
 
 interface UserInterface extends mongoose.Document {
+  subId: string;
   username: string;
   name: string;
   email: string;
@@ -22,6 +23,11 @@ interface UserInterface extends mongoose.Document {
 
 const userSchema: Schema<UserInterface> = new mongoose.Schema(
   {
+    subId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     username: {
       type: String,
       required: true,
@@ -47,7 +53,7 @@ const userSchema: Schema<UserInterface> = new mongoose.Schema(
     avatar: {
       type: String,
       default:
-        'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
     },
     profileBanner: {
       type: String,
@@ -60,7 +66,7 @@ const userSchema: Schema<UserInterface> = new mongoose.Schema(
     location: {
       type: {
         type: String,
-        enum: ['Point'],
+        enum: ["Point"],
         required: false,
       },
       coordinates: {
@@ -78,11 +84,11 @@ const userSchema: Schema<UserInterface> = new mongoose.Schema(
 );
 
 // Add 2dsphere index to enable geospatial queries
-userSchema.index({ location: '2dsphere' });
+userSchema.index({ location: "2dsphere" });
 
 // Pre-save hook for password hashing
-userSchema.pre<UserInterface>('save', async function (next) {
-  if (!this.isModified('password')) {
+userSchema.pre<UserInterface>("save", async function (next) {
+  if (!this.isModified("password")) {
     return next();
   }
   try {
@@ -95,8 +101,10 @@ userSchema.pre<UserInterface>('save', async function (next) {
 });
 
 // Method to compare passwords
-userSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
-  // Bcrypt automatically uses the salt embedded in the stored hash for the compare () method , added this comment to 
+userSchema.methods.comparePassword = async function (
+  password: string
+): Promise<boolean> {
+  // Bcrypt automatically uses the salt embedded in the stored hash for the compare () method , added this comment to
   // make sure you dont get brainfuck to think how it compares the password without the access to the salt :)
   return bcrypt.compare(password, this.password);
 };
@@ -112,12 +120,11 @@ userSchema.methods.generateAccessToken = function (): string {
     },
     process.env.JWT_SECRET_KEY as string,
     {
-      expiresIn: '2161h',
+      expiresIn: "2161h",
     }
   );
 };
 
-const User = mongoose.model<UserInterface>('User', userSchema);
+const User = mongoose.model<UserInterface>("User", userSchema);
 
 export default User;
-
