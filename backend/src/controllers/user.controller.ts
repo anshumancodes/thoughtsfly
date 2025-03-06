@@ -6,6 +6,9 @@ import uploadTocloud from "../services/cloudinary.js";
 import AsyncHandler from "../services/AsyncHandler.js";
 import { Post } from "../models/post.model.js";
 import mongoose from "mongoose";
+import  Jwt from "jsonwebtoken";
+import axios from "axios";
+
 
 const userSignup=async(req,res)=>{
     const {username,name,email,password,profileBio,location}=req.body;
@@ -106,24 +109,7 @@ const  userLogin=AsyncHandler(async (req,res)=>{
 
 })
 
-const fetchUserProfile=async(req,res)=>{
-    const {username}=req.params;
 
-    const user=await User.findOne({username:username}).select("-password -email -accessToken");
-
-    if(!user){
-        return res.status(400).json(new ApiError(400,"User not found"));
-    }
-
-    const userPosts=await Post.find({owner:user._id})
-
-    return res.status(200).json(new ApiResponse(200,{
-        userProfile:user,
-        TotalPosts:userPosts.length
-    },"User profile fetched successfully"));
-
-    
-}
 
 const EditUserProfile=async(req,res)=>{
 
@@ -180,5 +166,82 @@ const changeUsername=async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,updatedUser,"Username updated successfully"));
 }
 
+const HandleAuthOsignup = async (req, res) => {
+    try {
+      const UserSubId = req.auth.payload.sub;
+  
+      // Check if user already exists
+      const doesUserExist = await User.findOne({ subId: UserSubId });
+      if (doesUserExist) {
+        return res.status(400).json(new ApiError(400, "User already exists!"));
+      }
+  
+      // Extract access token
+      const accessToken = req.headers.authorization?.split("Bearer ")[1];
+      if (!accessToken) {
+        return res.status(401).json(new ApiError(401, "No access token provided"));
+      }
+  
+      // Fetch user info from Auth0
+      const userInfoResponse = await axios.get(`${process.env.AUTH0_DOMAIN}/userinfo`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+  
+      const userInfo = userInfoResponse.data;
+  
+      // Create new user with auth0 info
+      const newUser = await User.create({
+        subId: userInfo.sub,
+        username: userInfo.nickname, 
+        name: userInfo.name,
+        email: userInfo.email,
+        avatar: userInfo.picture,
+      });
+  
+      if (!newUser) {
+        return res.status(500).json(new ApiError(500, "Unable to create a new user"));
+      }
+  
+      res.status(200).json(new ApiResponse(200,"successfully created new user!"));
+  
+    } catch (error) {
+      res.status(500).json(new ApiError(500, error.message || "Internal server error"));
+    }
+  };
+  
+  const fetchUserProfile = async (req, res) => {
+    try {
+      // Extract access token
+      const accessToken = req.headers.authorization?.split("Bearer ")[1];
+  
+      if (!accessToken) {
+        return res.status(401).json(new ApiError(401, "No access token provided"));
+      }
+  
+      // Fetch user info from Auth0
+      const userInfoResponse = await axios.get(`${process.env.AUTH0_DOMAIN}/userinfo`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+  
+      const { updated_at, email_verified, sub, ...newUser } = userInfoResponse.data;
+  
+      if (!userInfoResponse.data) {
+        return res.status(400).json(new ApiError(400, "User not found"));
+      }
+  
+      const userProfile = {
+        updated_at,
+        email_verified,
+        sub,
+        ...newUser,
+      };
+  
+      return res.status(200).json(new ApiResponse(200, userProfile, "User profile fetched successfully"));
+    } catch (error) {
+      console.error("Error fetching user profile:", error.message);
+      return res.status(500).json(new ApiError(500, error.message || "Internal server error"));
+    }
+  };
+  
 
-export{userSignup,userLogin,fetchUserProfile,EditUserProfile,changeUsername}
+export{userSignup,userLogin,fetchUserProfile,EditUserProfile,changeUsername,HandleAuthOsignup}
