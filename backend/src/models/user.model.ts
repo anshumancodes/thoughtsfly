@@ -47,8 +47,8 @@ const userSchema: Schema<UserInterface> = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       minLength: 6,
+      // why password is not "required", well because authO doesnt share passwords over api so we cant store them , however if someone uses our own email,password based auth sytem then we can still store them
     },
     avatar: {
       type: String,
