@@ -167,47 +167,7 @@ const changeUsername=async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,updatedUser,"Username updated successfully"));
 }
 
-const HandleAuthOsignup = async (req, res) => {
-  try {
-    // The middleware already validated the token refer to : middlewares/
-    // You can access the decoded token data through req.auth
-    const UserSubId = req.auth.sub;
 
-    // Checking if user already exists
-    const doesUserExist = await User.findOne({ subId: UserSubId });
-    if (doesUserExist) {
-      return res.status(400).json(new ApiError(400, "User already exists!"));
-    }
-
-    // Fetching user info from Auth0 
-    const accessToken = req.headers.authorization?.split("Bearer ")[1];
-    const userInfoResponse = await axios.get(`${process.env.AUTH0_DOMAIN}/userinfo`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    const userInfo = userInfoResponse.data;
-
-    // Creates new user with auth0 info
-    const newUser = await User.create({
-      subId: userInfo.sub,
-      username: userInfo.nickname? userInfo.nickname.slice(0,15) : userInfo.name.replace(/\s/g, "").slice(0,15),
-      name: userInfo.name,
-      email: userInfo.email,
-      avatar: userInfo.picture,
-    });
-    console.log(newUser);
-
-    if (!newUser) {
-      return res.status(500).json(new ApiError(500, "Unable to create a new user"));
-    }
-
-    res.status(200).json(new ApiResponse(200, "successfully created new user!"));
-  } catch (error) {
-    console.error("Detailed error:", error);
-    res.status(500).json(new ApiError(500, error.message || "Internal server error"));
-  }
-};
-  
   const fetchUserProfile = async (req, res) => {
     try {
       // Extract access token
@@ -242,5 +202,50 @@ const HandleAuthOsignup = async (req, res) => {
     }
   };
   
+  const HandleAuthOsignup = async (req, res) => {
+    try {
+      // The middleware already validated the token refer to : middlewares/
+      // You can access the decoded token data through req.auth
+      const UserSubId = req.auth.payload.sub;
+     
+  
+      // Checking if user already exists
+      const doesUserExist = await User.findOne({ subId: UserSubId });
+      if (doesUserExist) {
+        return res.status(200).json(new ApiResponse(200,{
+          username:doesUserExist.username,
+          email:doesUserExist.email,
+          avatar:doesUserExist.avatar
+        }));
+      }
+      // Fetching user info from Auth0 
+      const accessToken = req.headers.authorization?.split("Bearer ")[1];
+      const userInfoResponse = await axios.get(`${process.env.AUTH0_DOMAIN}/userinfo`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+  
+      const userInfo = userInfoResponse.data;
+    
+      
+      const newUser = await User.create({
+        subId: userInfo.sub,
+        username: userInfo.nickname? userInfo.nickname.slice(0,15) : userInfo.name.replace(/\s/g, "").slice(0,15),
+        name: userInfo.name,
+        email: userInfo.email,
+        avatar: userInfo.picture,
+      });
+      console.log(newUser);
+  
+      if (!newUser) {
+        return res.status(500).json(new ApiError(500, "Unable to create a new user"));
+      }
+  
+      return res.status(200).json(new ApiResponse(200, "successfully created new user!"));
+    } catch (error) {
+      console.error("Detailed error:", error);
+      return res.status(500).json(new ApiError(500, error.message || "Internal server error"));
+    }
+  };
+    
 
 export{userSignup,userLogin,fetchUserProfile,EditUserProfile,changeUsername,HandleAuthOsignup}
