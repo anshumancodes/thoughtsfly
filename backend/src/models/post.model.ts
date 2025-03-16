@@ -1,10 +1,9 @@
 import mongoose from 'mongoose';
 
-const ContentTypes=['image','Video','Text']
+
 const PostSchema= new mongoose.Schema({
     content:{
         type:String,
-        enum:ContentTypes,
         required:true,
         minLength:1,
         maxLength:2000
