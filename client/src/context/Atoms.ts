@@ -44,3 +44,49 @@ export const EditProfileModalState=atom({
   key:"EditProfileModalState",
   default:false
 })
+
+export const isSettingson=atom({
+  key:"isSettingstabopen",
+  default:false
+})
+
+export const UserProfileInfo = atom({
+  key: "UserInfoState",
+  default: {
+    fullName: "",
+    username: "",
+    avatar: "",
+    profileBanner: "",
+    Bio: "",
+    location: "",
+    followers: 0,
+    following: 0,
+    posts: 0
+  }
+});
+
+export const userState = atom({
+  key: 'userState',
+  default: {
+    username: null,
+  },
+});
+
+
+export const postContent=atom({
+  key:"postContentState",
+  default:{
+    content:"",
+    Name:"fullName",
+    username:"@username",
+    likes:0,
+    commentCount:0,
+    RepostCount:0,
+    LikeCount:0,
+
+
+
+
+
+  }
+})
