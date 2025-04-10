@@ -1,19 +1,42 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
+import { signupWithAuth0 } from "../services/UserDataService";
+import { userState } from "../context/Atoms";
+import { useSetRecoilState } from "recoil";
 const ProductSignup = () => {
+  const setGlobalUsername=useSetRecoilState(userState)
+  const { loginWithPopup, isAuthenticated, getAccessTokenSilently } =
+    useAuth0();
+  const navigate = useNavigate();
 
- const {loginWithRedirect,isAuthenticated}=useAuth0();
- const naviGatetoHome=useNavigate()
- useEffect(()=>{
-  isAuthenticated && (
-    naviGatetoHome("/home")
 
-  )
- },[isAuthenticated])
+
+  useEffect(() => {
+    const handleSignup = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        const token = await getAccessTokenSilently();
+        const response = await signupWithAuth0(token);
+
+        if (response?.statusCode === 200) {
+          setGlobalUsername(response.username)
+          navigate("/home");
+        } else {
+          console.warn("Unexpected backend response:", response);
+        }
+      } catch (error) {
+        console.error("Error during signup process:", error);
+        // Optionally add user feedback here
+      }
+    };
+
+    handleSignup();
+  }, [isAuthenticated]);
+
   return (
-    <section className="flex flex-col md:flex-row space-y-10 md:space-y-0 md:space-x-20 w-full justify-center items-center h-screen p-6 ">
-
+    <section className="flex flex-col md:flex-row space-y-10 md:space-y-0 md:space-x-20 w-full justify-center items-center h-screen p-6">
       {/* Left Image Section */}
       <div className="hidden md:flex justify-center items-center">
         <img
@@ -25,8 +48,6 @@ const ProductSignup = () => {
 
       {/* Right Signup Section */}
       <div className="flex flex-col items-center w-full max-w-lg space-y-6 pb-10 md:pb-0">
-
-       
         <div className="mt-10 flex flex-col items-center space-y-6 justify-center w-fit">
           <div className="flex items-center space-x-4">
             <img
@@ -49,8 +70,10 @@ const ProductSignup = () => {
 
         {/* Signup Buttons */}
         <div className="space-y-4 w-full">
-
-          <button className="w-full bg-white text-black font-semibold py-3 border border-gray-300 rounded-full shadow hover:bg-gray-100 transition duration-300" onClick={()=>loginWithRedirect()}>
+          <button
+            className="w-full bg-white text-black font-semibold py-3 border border-gray-300 rounded-full shadow hover:bg-gray-100 transition duration-300"
+            onClick={() => loginWithPopup()}
+          >
             Create an account
           </button>
           <div className="flex items-center justify-center space-x-4">
@@ -59,20 +82,26 @@ const ProductSignup = () => {
             <span className="h-[1px] w-1/4 bg-gray-300"></span>
           </div>
           <div className="flex flex-col items-center space-y-4 w-full">
-          <button className="text-[#E14f20] font-semibold  hover:text-[#b8321a] transition duration-200">
-            Already have an account?
-          </button>
-          <button className="w-full bg-[#e14f20] text-white font-semibold py-3  rounded-full shadow  outline-none" onClick={()=>loginWithRedirect()}>
-           Sign in
-          </button>
+            <button className="text-[#E14f20] font-semibold hover:text-[#b8321a] transition duration-200">
+              Already have an account?
+            </button>
+            <button
+              className="w-full bg-[#e14f20] text-white font-semibold py-3 rounded-full shadow outline-none"
+              onClick={() =>
+                loginWithPopup({
+                  authorizationParams: {
+                    screen_hint: "login", 
+                  },
+                })
+              }
+            >
+              Sign in
+            </button>
+          </div>
         </div>
-        </div>
-
       </div>
-
     </section>
   );
 };
 
 export default ProductSignup;
-
