@@ -42,7 +42,6 @@ const UserProfile = () => {
         profileBanner: response.data.data.profileBanner,
         Bio: response.data.data.profileBio,
         location: response.data.data.location,
-        // Add the missing properties with default values or from the response
         followers: response.data.data.followers || 0,
         following: response.data.data.following || 0,
         posts: response.data.data.posts || 0
@@ -63,14 +62,14 @@ const UserProfile = () => {
         </div>
         
         <div className="ml-8 px-4 pb-2">
-          <p className="text-sm text-gray-500">110 posts</p>
+          <p className="text-sm text-gray-500">{userProfile.posts} posts</p>
         </div>
       </div>
       
       {/* Banner and Profile Picture */}
       <div className="relative">
         <img
-          src={userProfile.profileBanner || "https://pbs.twimg.com/profile_banners/1600013306437455872/1705417291/1500x500"}
+          src={userProfile.profileBanner || "https://i.pinimg.com/736x/49/5f/e7/495fe7750b161e168c129110310836f2.jpg"}
           alt="Banner"
           className="w-full object-cover"
         />
@@ -104,10 +103,10 @@ const UserProfile = () => {
           </p>
           <div className="flex gap-4 mt-2 text-sm text-gray-600">
             <p>
-              <span className="font-semibold">107</span> following
+              <span className="font-semibold">{userProfile.following}</span> following
             </p>
             <p>
-              <span className="font-semibold">87</span> followers
+              <span className="font-semibold">{userProfile.followers}</span> followers
             </p>
           </div>
           {userProfile.location && (
@@ -123,12 +122,15 @@ const UserProfile = () => {
       
       {/* User Posts */}
       <div className="border-t">
-        <Post />
-      </div>
+  <div>
+  {userProfile.posts > 0 ? <Post /> : <p className="text-gray-500 flex w-full justify-center mt-10">No posts found</p>}
+  </div>
+</div>
+
     </div>
   );
 };
 
 export default UserProfile;
 
-// data and figures are dummy meant for placeholder purpose only , the design is primitive and not final yet
+
