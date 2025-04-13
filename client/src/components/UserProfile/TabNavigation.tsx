@@ -7,7 +7,7 @@ const TabNavigation = () => {
   const tabs = ["Posts", "Replies", "Media","Likes"]; 
 
   return (
-    <div className="bg-black text-gray-400  px-5 border-b border-gray-500">
+    <div className="px-5 border-b border-gray-500">
       <div className="flex space-x-6 ">
         {tabs.map((tab) => (
           <button
@@ -15,8 +15,8 @@ const TabNavigation = () => {
             onClick={() => setActiveTab(tab)}
             className={`text-base ${
               activeTab === tab
-                ? "text-white border-b-2 border-[#e14f20]"
-                : "hover:text-gray-200"
+                ? " border-b-2 border-[#e14f20]"
+                : "hover:text-gray-400"
             } pb-1`}
           >
             {tab}
