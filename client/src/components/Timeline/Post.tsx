@@ -1,31 +1,33 @@
 import { useRecoilState} from "recoil";
 import { UpVoteState, UpVoteCountState } from "../../context/Atoms";
 import { Link } from "react-router-dom";
-const Post = () => {
+
+const Post = ({data}:any) => {
   const [UpVote, setUpVote] = useRecoilState(UpVoteState);
   const [UpVoteCount, setUpVoteCount] = useRecoilState(UpVoteCountState);
+  
   
 
   const HandleUpVote = () => {
     if (!UpVote) {
-      setUpVote(true); // Mark as upvoted
-      setUpVoteCount(UpVoteCount + 1); // Increment count
+      setUpVote(true);
+      setUpVoteCount(UpVoteCount + 1); 
     } else {
-      setUpVote(false); // Remove upvote
-      setUpVoteCount(UpVoteCount - 1); // Decrement count
+      setUpVote(false); 
+      setUpVoteCount(UpVoteCount - 1);
     }
   };
   return (
-    <div>
-      <div className="bg-inherit px-4 pt-4  border-b border-gray-500 w-[605px]">
+    <div className="w-full">
+      <div className="bg-inherit px-4 pt-4  border-b border-gray-500 w-full lg:w-[605px]">
         <div className="flex items-center space-x-3">
         <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
           <div>
-            <div className="font-semibold text-base">Full Name</div>
-            <div className="text-base text-gray-500">@username</div>
+            <div className="font-semibold text-base">{data.Name}</div>
+            <div className="text-base text-gray-500">{data.username}</div>
           </div>
         </div>
-        <p className="mt-4 ml-2 ">This is a sample tweet-like post. #hashtag</p>
+        <p className="mt-4 ml-2 ">{data.content}</p>
         <div className="flex p-2 mt-4 text-gray-500 justify-around items-center">
          <Link to={`/post/124`}> <img src="/message-circle-svgrepo-com.svg" alt="" width={20} /></Link>
           <img src="/repost-2-svgrepo-com.svg" alt="" width={20} />
@@ -36,7 +38,7 @@ const Post = () => {
             className="flex items-center space-x-2 p-2 rounded-md"
           >
             <UpVoteArrow/>
-            <p className="text-gray-500">{UpVoteCount}</p>
+            <p className="text-gray-500">{data.likes}</p>
           </button>
 
 
