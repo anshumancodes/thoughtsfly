@@ -1,13 +1,17 @@
 import Router from "express";
-import { userSignup } from "../controllers/user.controller.js";
-import { upload } from "../middlewares/fileupload.middleware.js";
+import { userSignup,fetchUserProfile, userLogin,HandleAuthOsignup } from "../controllers/user.controller.js";
+import { upload } from "../middlewares/multer.middleware.js";
+import { jwtCheck } from "../middlewares/Auth.middleware.js";
+
 const router = Router();
 
-router.route("/signup").get(upload.fields([{ name: "avatar" }, { name: "profileBanner" }]), userSignup);
-router.route("/login").get((req, res) => {});
+router.route("/signup").post(upload.fields([{ name: "avatar" }, { name: "profileBanner" }]), userSignup);
+router.route("/login").post(userLogin);
 router.route("/logout").get((req, res) => {});
-router.route("/profile").get((req, res) => {});
+router.route("/profile/:username").get(jwtCheck,fetchUserProfile);
 
 
+// auth0 routes
 
+router.route("/auth0/signup").post(jwtCheck,HandleAuthOsignup);
 export default router;
