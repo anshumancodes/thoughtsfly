@@ -61,8 +61,7 @@ const deletePost = async (req, res) => {
 const fetchPostbyid = async (req, res) => {
   try {
     const { postid } = req.params;
-
-    const post = await Post.findById(postid);
+    const post = await Post.findById(postid).populate("owner", "username avatar name");
     if (!post) {
       return res.status(404).json(new ApiError(404, "post not found"));
     }
@@ -104,7 +103,33 @@ const fetchUserallposts = async (req, res) => {
           createdAt: -1,
         },
       },
-    ]);
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+        },
+      },
+      {
+        $unwind: "$owner",
+      },{
+        $project: {
+          content: 1,
+          likes: 1,
+          comments: 1,
+          retweets: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          owner: {
+            _id: "$owner._id",
+            username: "$owner.username",
+            avatar: "$owner.avatar",
+            name: "$owner.name",
+          },
+        },
+      },
+    ])
 
     if (!allPostsbyUser.length) {
       return res.status(400).json(new ApiError(400, "NO exisiting post found"));
