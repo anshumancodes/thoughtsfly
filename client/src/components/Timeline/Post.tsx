@@ -1,69 +1,96 @@
-import { useRecoilState} from "recoil";
-import { UpVoteState, UpVoteCountState } from "../../context/Atoms";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+export interface PostOwner {
+  _id: string;
+  username: string;
+  name: string;
+  avatar: string;
+}
 
-const Post = ({data}:any) => {
-  const [UpVote, setUpVote] = useRecoilState(UpVoteState);
-  const [UpVoteCount, setUpVoteCount] = useRecoilState(UpVoteCountState);
-  
-  
+export interface PostData {
+  _id: string;
+  content: string;
+  owner: PostOwner;
+  likes: string[];
+  comments: any[];
+  retweets: any[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface PostProps {
+  data: PostData;
+}
+const Post = ({ data }: PostProps) => {
+  const [UpVote, setUpVote] = useState(false);
+  const [UpVoteCount, setUpVoteCount] = useState(0);
 
   const HandleUpVote = () => {
     if (!UpVote) {
-      setUpVote(true);
-      setUpVoteCount(UpVoteCount + 1); 
+      setUpVote(true); // Mark as upvoted
+      setUpVoteCount(UpVoteCount + 1); // Increment count
     } else {
-      setUpVote(false); 
-      setUpVoteCount(UpVoteCount - 1);
+      setUpVote(false); // Remove upvote
+      setUpVoteCount(UpVoteCount - 1); // Decrement count
     }
   };
   return (
-    <div className="w-full">
+   <Link to={`/post/fetch/${data._id}`} >
+     <div className="w-full">
       <div className="bg-inherit px-4 pt-4  border-b border-gray-500 w-full lg:w-[605px]">
         <div className="flex items-center space-x-3">
-        <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+          <div className="w-10 h-10 bg-gray-300 rounded-full">
+            <img src={`${data.owner.avatar}`} alt="" className="rounded-full" />
+          </div>
           <div>
-            <div className="font-semibold text-base">{data.Name}</div>
-            <div className="text-base text-gray-500">{data.username}</div>
+            <div className="font-medium text-base">{data.owner.name}</div>
+            <Link to={`/u/${data.owner.username}`}>
+              <div className="text-base text-gray-500">
+                @{data.owner.username}
+              </div>
+            </Link>
           </div>
         </div>
         <p className="mt-4 ml-2 ">{data.content}</p>
         <div className="flex p-2 mt-4 text-gray-500 justify-around items-center">
-         <Link to={`/post/124`}> <img src="/message-circle-svgrepo-com.svg" alt="" width={20} /></Link>
+          <Link to={`/post/124`}>
+            {" "}
+            <img src="/message-circle-svgrepo-com.svg" alt="" width={20} />
+          </Link>
           <img src="/repost-2-svgrepo-com.svg" alt="" width={20} />
-
 
           <button
             onClick={HandleUpVote}
             className="flex items-center space-x-2 p-2 rounded-md"
           >
-            <UpVoteArrow/>
-            <p className="text-gray-500">{data.likes}</p>
+            <UpVoteArrow />
+            <p className="text-gray-500">{data.likes.length}</p>
           </button>
-
 
           <img src="/stats-fm-svgrepo-com.svg" alt="" width={20} />
         </div>
       </div>
     </div>
+   </Link>
   );
 };
 
 const UpVoteArrow = () => {
-  const [UpVote, setUpVote] = useRecoilState(UpVoteState); // Subscribe to atom state
+  const [UpVote, setUpVote] = useState(Boolean);
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width={20}
       height={20}
-      viewBox="0 0 511.947 511.947" // Adjusted to match the provided SVG
-      fill={UpVote ? "#e14f20" : "#6b7280"} // Dynamic fill
-      stroke={UpVote ? "#e14f20" : "#6b7280"} // Dynamic stroke
+      viewBox="0 0 511.947 511.947"
+      fill={UpVote ? "#e14f20" : "#6b7280"}
+      stroke={UpVote ? "#e14f20" : "#6b7280"}
       style={{
-        cursor: "pointer", // Optional: interactive cursor
+        cursor: "pointer",
       }}
-      onClick={() => setUpVote(!UpVote)} // Toggle state on click
+      onClick={() => setUpVote(!UpVote)}
     >
       <g id="SVGRepo_iconCarrier">
         <g>
