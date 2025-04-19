@@ -1,57 +1,93 @@
 import { X } from "lucide-react";
-import {useRef } from "react";
-import { CreatePostModalState } from "../../context/Atoms";
-import { useSetRecoilState,useRecoilValue } from "recoil";
+import { useState } from "react";
+import { useSetRecoilState, useRecoilValue } from "recoil";
+import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
 
-import { LightOrDark } from "../../context/Atoms";
+import { CreatePostModalState, LightOrDark, UserProfileInfo } from "../../context/Atoms";
+
 const CreatePostModal = () => {
   const theme = useRecoilValue(LightOrDark);
-  
+  const userProfile = useRecoilValue(UserProfileInfo);
   const setCreatePostModalState = useSetRecoilState(CreatePostModalState);
 
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [content, setContent] = useState("");
+  const { getAccessTokenSilently } = useAuth0();
 
- 
+  const handleCreatePost = async () => {
+    try {
+      const token = await getAccessTokenSilently();
+
+      const response = await axios.post(
+        "http://localhost:8001/api/v1/post/create",
+        { content },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Post created:", response.data);
+      setContent("");
+     
+    } catch (error) {
+      console.error("Error creating post:", error);
+    }
+  };
+
+  const themeClass =
+    theme === "light"
+      ? "bg-[#FFFFFA] text-gray-900"
+      : "bg-[#1e1e1e] text-[#FFFFFA]";
+
   return (
-    <div className="fixed top-0 left-0 w-screen h-full bg-[#1e1e1e] bg-opacity-50 z-40 flex justify-center ">
-      <div  className={`${
-        theme === "light"
-          ? "bg-[#FFFFFA] text-grey-900"
-          : "bg-[#1e1e1e]  text-[#FFFFFA]"
-      }px-2 md:px-4 md:py-4 w-[99%]  md:w-[600px] h-[360px] rounded-[32px]  shadow-md md:mr-32 mt-20 z-50`}>
-        <div className="flex justify-between items-center p-2 md:p-0">
-          <button onClick={()=>setCreatePostModalState(false)} >
+    <div className="fixed top-0 left-0 w-screen h-full bg-[#1e1e1e] bg-opacity-50 z-40 flex justify-center">
+      <div
+        className={`${themeClass} px-4 py-4 w-[95%] md:w-[600px] h-[360px] rounded-[32px] shadow-md mt-20 z-50`}
+      >
+        {/* Header */}
+        <div className="flex justify-between items-center mb-2">
+          <button onClick={() => setCreatePostModalState(false)}>
             <X />
           </button>
           <button className="text-[#e14f20] font-bold px-2 py-1">Draft</button>
         </div>
 
-        <div className="">
+        {/* User + Textarea */}
+        <div className="flex gap-3 items-start mb-4">
           <img
-            src="https://pbs.twimg.com/profile_images/1855841395329617920/764Jlajm_400x400.jpg"
+            src={userProfile.avatar || "/default-avatar.png"}
             alt="Profile"
-            width={60}
+            width={48}
+            height={48}
             className="rounded-full"
           />
           <textarea
-            ref={textareaRef}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             placeholder="What's happening?"
             maxLength={1000}
-            className={` w-full p-3 outline-none bg-inherit resize-none min-h-[180px] overflow-y-auto hide-scrollbar [&:valid]:caret-white [&:invalid]:caret-red-600`}
-            
+            className="w-full caret-gray-600 p-3 outline-none bg-inherit resize-none min-h-[180px] overflow-y-auto hide-scrollbar"
           />
         </div>
-         <div className="h-[1px] bg-gray-500 w-full"></div>
-        <div className="flex justify-between items-center mt-4 px-2 md:px-1">
-           <div className="flex items-center gap-4">
-           <img src="/img-box-svgrepo-com.svg" alt="" width={24} height={24} />
-           <img src="/gif-svgrepo-com.svg" alt="" width={24} height={24} />
-           </div>
-           <div>
-             <button className="bg-[#e14f20] text-white font-bold py-2 px-6 rounded-full hover:bg-[#e96c46]">
-               Post
-               </button>
-           </div>
+
+        <div className="h-[1px] bg-gray-500 w-full mb-4" />
+
+        {/* Footer */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <img src="/img-box-svgrepo-com.svg" alt="Add image" width={24} height={24} />
+            <img src="/gif-svgrepo-com.svg" alt="Add gif" width={24} height={24} />
+          </div>
+          <button
+            onClick={handleCreatePost}
+            className="bg-[#e14f20] text-white font-bold py-2 px-6 rounded-full hover:bg-[#e96c46]"
+            disabled={!content.trim()}
+          >
+            Post
+          </button>
         </div>
       </div>
     </div>
@@ -59,3 +95,4 @@ const CreatePostModal = () => {
 };
 
 export default CreatePostModal;
+
