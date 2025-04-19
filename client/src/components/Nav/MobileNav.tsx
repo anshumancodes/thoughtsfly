@@ -1,11 +1,12 @@
 import { Home, Search, Plus ,User,Settings} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSetRecoilState,useRecoilValue } from "recoil";
-import { CreatePostModalState,LightOrDark  } from "../../context/Atoms";
+import { CreatePostModalState,LightOrDark,userState  } from "../../context/Atoms";
 
 const MobileNav = () => {
   const setCreatePostModalState = useSetRecoilState(CreatePostModalState);
   const theme = useRecoilValue(LightOrDark);
+  const user=useRecoilValue(userState);
   return (
     <nav  className={`md:hidden fixed bottom-0 inset-x-0 border-t border-gray-500 ${theme === "light"
       ? "bg-[#FFFFFA] text-grey-900"
@@ -24,13 +25,13 @@ const MobileNav = () => {
 </Link>
        {/* open tweet */}
         <button className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-[#e14f20]  rounded-full p-3 shadow-lg" onClick={() => setCreatePostModalState(true)}>
-          <Plus className="w-6 h-6" />
+          <Plus className="w-4 h-4" />
         </button>
         <Link to={"/settings"}>        <button className="flex flex-col items-center">
           <Settings className="w-6 h-6" />
         </button>
 </Link>
-        <Link to={"/user"}>
+        <Link to={`/u/${user}`}>
         <button className="flex flex-col items-center">
           <User className="w-6 h-6" />
         </button></Link>
