@@ -7,7 +7,6 @@ import UserProfile from "./components/UserProfile/UserProfile";
 import AppLayout from "./Layouts/AppLayout";
 import Explore from "./pages/Explore";
 import PostViewWithComments from "./components/Comments/PostViewWithComments";
-import { useAuth0 } from "@auth0/auth0-react";
 import Settings from "./components/Settings/Settings";
 import AccountSettings from "./components/Settings/AccountSettings";
 import ChangePassword from "./components/Settings/ChangePassword";
@@ -16,15 +15,14 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import InvalidRoutePage from "./pages/InvalidRoutePage";
 function App() {
   const theme = useRecoilValue(LightOrDark);
-  const { user } = useAuth0();
-  console.log(user);
+ 
 
   return (
     <div
       className={`${
         theme === "light"
           ? "bg-[#FFFFFA] text-grey-900"
-          : "bg-black text-[#FFFFFA]"
+          : "bg-[#0A0A0A]  text-[#FFFFFA]"
       }`}
     >
       <Routes>
@@ -37,9 +35,9 @@ function App() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/user" element={<UserProfile />} />
+            <Route path="/u/:username" element={<UserProfile />} />
             <Route path="/explore" element={<Explore />} />
-            <Route path="/post/:postId" element={<PostViewWithComments />} />
+            <Route path="/post/fetch/:postId" element={<PostViewWithComments />} />
             <Route path="/settings" element={<Settings />}>
               <Route index element={<AccountSettings />} />
               <Route path="account" element={<AccountSettings />} />
