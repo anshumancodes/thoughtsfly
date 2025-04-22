@@ -1,12 +1,12 @@
 import { Home, Search, Plus ,User,Settings} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSetRecoilState,useRecoilValue } from "recoil";
-import { CreatePostModalState,LightOrDark,userState  } from "../../context/Atoms";
+import { CreatePostModalState,LightOrDark} from "../../context/Atoms";
 
 const MobileNav = () => {
   const setCreatePostModalState = useSetRecoilState(CreatePostModalState);
   const theme = useRecoilValue(LightOrDark);
-  const user=useRecoilValue(userState);
+  const user=localStorage.getItem("username")?.toString();
   return (
     <nav  className={`md:hidden fixed bottom-0 inset-x-0 border-t border-gray-500 ${theme === "light"
       ? "bg-[#FFFFFA] text-grey-900"
