@@ -2,15 +2,11 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { signupWithAuth0 } from "../services/UserDataService";
-import { userState } from "../context/Atoms";
-import { useSetRecoilState } from "recoil";
 const ProductSignup = () => {
-  const setGlobalUsername=useSetRecoilState(userState)
+  
   const { loginWithPopup, isAuthenticated, getAccessTokenSilently } =
     useAuth0();
   const navigate = useNavigate();
-
-
 
   useEffect(() => {
     const handleSignup = async () => {
@@ -21,14 +17,16 @@ const ProductSignup = () => {
         const response = await signupWithAuth0(token);
 
         if (response?.statusCode === 200) {
-          setGlobalUsername(response.username)
+          
+          
+          localStorage.setItem("username",response.data.username);
+
           navigate("/home");
         } else {
           console.warn("Unexpected backend response:", response);
         }
       } catch (error) {
         console.error("Error during signup process:", error);
-        // Optionally add user feedback here
       }
     };
 
@@ -90,7 +88,7 @@ const ProductSignup = () => {
               onClick={() =>
                 loginWithPopup({
                   authorizationParams: {
-                    screen_hint: "login", 
+                    screen_hint: "login",
                   },
                 })
               }
