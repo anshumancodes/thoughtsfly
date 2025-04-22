@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
 import { CreatePostModalState } from "../../context/Atoms";
-import { useSetRecoilState,useRecoilValue } from "recoil";
+import { useSetRecoilState} from "recoil";
 import LogoutModal from "../auth/LogoutModal";
 import { Settings, User, Search, Home, Hash } from "lucide-react";
-import { userState } from "../../context/Atoms";
+
 
 const SideNav = () => {
   const setCreatePostModalState = useSetRecoilState(CreatePostModalState);
 
  
-  const user=useRecoilValue(userState);
+  const user=localStorage.getItem("username")?.toString();
   console.log(user)
   const links = [
     { icon: <Home />, link: "/home", text: "Home" },
