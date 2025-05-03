@@ -5,9 +5,13 @@ import mongoose from "mongoose";
 import { Like } from "../models/like.model.js";
 
 const CreateLike = async (req, res) => {
+  console.log("we are inside the controller");
+  console.log(req.body);
   try {
     const userWhoLiked = req.user._id;
     const { postId } = req.body;
+    console.log(postId);
+
     const isValidPostid = mongoose.isValidObjectId(postId);
     if (!isValidPostid) {
       return res.status(400).json(new ApiError(400, "invalid Post id"));
@@ -30,7 +34,7 @@ const CreateLike = async (req, res) => {
     try {
       const LikeData = LikeSchema.parse({
         post: postId,
-        likedby: userWhoLiked,
+        likedby: userWhoLiked.toString(),
       });
       const like = await Like.create(LikeData);
       if (!like) {
@@ -52,7 +56,6 @@ const CreateLike = async (req, res) => {
       .json(new ApiError(500, "Internal Server Error", error));
   }
 };
-
 
 const DeleteLike = async (req, res) => {
   try {
@@ -87,3 +90,5 @@ const DeleteLike = async (req, res) => {
       .json(new ApiError(500, "Internal Server Error", error));
   }
 };
+
+export { DeleteLike, CreateLike };
