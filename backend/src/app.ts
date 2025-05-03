@@ -43,7 +43,7 @@ import postRouter from "./routes/post.router.js"
 app.use("/api/v1/post", postRouter);
 // like routes
 import likeRouter from "./routes/like.router.js"
-app.use("/api/v1/like", postRouter);
+app.use("/api/v1/like", likeRouter);
 
 
 
